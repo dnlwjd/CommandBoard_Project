@@ -28,7 +28,8 @@ public class CommandLineProgram {
                         session = processRequest(request, postManager, boardManager, userManager);
                         isRunning = session != null;
                     }
-                } catch (InvalidUrlException | PostNotFoundException | BoardNotFoundException | UserNotFoundException e) {
+                } catch (InvalidUrlException | PostNotFoundException | BoardNotFoundException |
+                         UserNotFoundException e) {
                     System.out.println("오류: " + e.getMessage());
                 }
             }
@@ -38,21 +39,35 @@ public class CommandLineProgram {
     private static Session processRequest(Request request, PostManager postManager, BoardManager boardManager, UserManager userManager) {
         String url = request.getUrl();
         Session session = request.getSession();
-        String[] parts = url.split("/");
-        if (parts.length < 2) {
+
+        // URL에서 '?' 이전 부분과 이후의 파라미터 부분을 분리
+        String[] urlParts = url.split("\\?");
+        if (urlParts.length < 1) {
             throw new InvalidUrlException("잘못된 URL 형식입니다.");
         }
 
-        String command = parts.length > 2 ? parts[1] + "/" + parts[2] : parts[1];
+        // '/'로 구분된 명령어 부분
+        String[] commandParts = urlParts[0].split("/");
+        if (commandParts.length < 2) {
+            throw new InvalidUrlException("잘못된 URL 형식입니다.");
+        }
 
+        // '/구분/기능' 형식으로 명령어를 설정
+        String command = commandParts[1] + "/" + commandParts[2];
+
+        // 파라미터 파싱
         Map<String, String> params = new HashMap<>();
-        for (int i = 3; i < parts.length; i++) {
-            String[] keyValue = parts[i].split("=");
-            if (keyValue.length == 2) {
-                params.put(keyValue[0], keyValue[1]);
+        if (urlParts.length > 1) {
+            String[] paramPairs = urlParts[1].split("&");
+            for (String pair : paramPairs) {
+                String[] keyValue = pair.split("=");
+                if (keyValue.length == 2) {
+                    params.put(keyValue[0], keyValue[1]);
+                }
             }
         }
 
+        // 명령어 처리
         switch (command) {
             case "accounts/signup" -> {
                 userManager.signup(params.get("username"), params.get("password"), params.get("email"));
