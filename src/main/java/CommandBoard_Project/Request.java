@@ -20,9 +20,4 @@ public class Request {
     public Session getSession() {
         return session;
     }
-
-    @Override
-    public String toString() {
-        return "Request{url='" + url + "', loggedIn=" + session.isLoggedIn() + "}";
-    }
 }

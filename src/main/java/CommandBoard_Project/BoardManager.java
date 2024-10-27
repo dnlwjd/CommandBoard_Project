@@ -66,8 +66,4 @@ public class BoardManager {
         }
         return null;
     }
-
-    public List<Board> getBoards() {
-        return boards;
-    }
 }
