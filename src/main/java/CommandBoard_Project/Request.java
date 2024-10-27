@@ -5,7 +5,11 @@ public class Request {
     private Session session;
 
     public Request(String url, Session session) {
-        this.url = url;
+        if (!url.startsWith("/")) {
+            this.url = "/" + url;
+        } else {
+            this.url = url;
+        }
         this.session = session;
     }
 
@@ -15,5 +19,10 @@ public class Request {
 
     public Session getSession() {
         return session;
+    }
+
+    @Override
+    public String toString() {
+        return "Request{url='" + url + "', loggedIn=" + session.isLoggedIn() + "}";
     }
 }

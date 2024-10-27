@@ -1,6 +1,5 @@
 package CommandBoard_Project;
 
-
 import java.time.LocalDateTime;
 
 public class Session {
@@ -26,5 +25,8 @@ public class Session {
 
     public void setLoggedInUser(User loggedInUser) {
         this.loggedInUser = loggedInUser;
+        if (loggedInUser != null) {
+            this.sessionStartTime = LocalDateTime.now();
+        }
     }
 }

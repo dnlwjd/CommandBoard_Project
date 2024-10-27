@@ -1,6 +1,5 @@
 package CommandBoard_Project;
 
-
 public class Board {
     private int boardId;
     private String boardName;
@@ -20,6 +19,10 @@ public class Board {
         return boardName;
     }
 
+    public void setBoardName(String boardName) {
+        this.boardName = boardName;
+    }
+
     public String getCreator() {
         return creator;
     }
@@ -29,4 +32,3 @@ public class Board {
         return "게시판 번호: " + boardId + ", 이름: " + boardName + ", 작성자: " + creator;
     }
 }
-

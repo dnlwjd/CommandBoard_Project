@@ -16,9 +16,9 @@ public class Post {
         this.boardId = boardId;
         this.title = title;
         this.content = content;
+        this.author = author;
         this.createdDate = LocalDateTime.now();
         this.modifiedDate = LocalDateTime.now();
-        this.author = author;
     }
 
     public int getPostId() {
@@ -61,8 +61,11 @@ public class Post {
 
     @Override
     public String toString() {
-        return "게시글 번호: " + postId + "\n게시판 번호: " + boardId + "\n제목: " + title +
-                "\n내용: " + content + "\n작성자: " + author + "\n작성일: " + createdDate +
+        return "게시글 번호: " + postId +
+                "\n제목: " + title +
+                "\n내용: " + content +
+                "\n작성자: " + author +
+                "\n작성일: " + createdDate +
                 "\n수정일: " + modifiedDate;
     }
 }

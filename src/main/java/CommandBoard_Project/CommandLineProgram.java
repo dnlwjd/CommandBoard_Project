@@ -1,6 +1,5 @@
 package CommandBoard_Project;
 
-
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Scanner;
@@ -8,98 +7,150 @@ import java.util.Scanner;
 public class CommandLineProgram {
     public static void main(String[] args) {
         try (Scanner scanner = new Scanner(System.in)) {
-            PostManager postManager = new PostManager();
             BoardManager boardManager = new BoardManager();
+            PostManager postManager = new PostManager(boardManager);
             UserManager userManager = new UserManager();
             boolean isRunning = true;
-            Session session = new Session(null); // 초기 세션은 로그인된 사용자가 없음
+            Session session = new Session(null);
 
             while (isRunning) {
                 System.out.print(session.isLoggedIn() ? session.getLoggedInUser().getUsername() + " > " : "손님 > ");
                 String input = scanner.nextLine();
 
                 try {
-                    // Request 객체 생성
                     Request request = new Request(input, session);
+
                     if (input.equals("종료") || input.equals("exit")) {
-                        isRunning = false; // 프로그램 종료
                         System.out.println("프로그램을 종료합니다.");
-                    } else {
-                        session = processRequest(request, postManager, boardManager, userManager);
-                        isRunning = session != null;
+                        isRunning = false;
+                        continue;
                     }
-                } catch (InvalidUrlException | PostNotFoundException | BoardNotFoundException |
-                         UserNotFoundException e) {
+
+                    processRequest(request, postManager, boardManager, userManager);
+                } catch (InvalidUrlException | PostNotFoundException |
+                         BoardNotFoundException | UserNotFoundException e) {
                     System.out.println("오류: " + e.getMessage());
                 }
             }
         }
     }
 
-    private static Session processRequest(Request request, PostManager postManager, BoardManager boardManager, UserManager userManager) {
+    private static void processRequest(Request request, PostManager postManager,
+                                       BoardManager boardManager, UserManager userManager) {
         String url = request.getUrl();
         Session session = request.getSession();
 
-        // URL에서 '?' 이전 부분과 이후의 파라미터 부분을 분리
-        String[] urlParts = url.split("\\?");
-        if (urlParts.length < 1) {
+        String[] urlParts = url.split("\\?", 2);
+        String[] pathParts = urlParts[0].split("/");
+
+        if (pathParts.length < 3) {
             throw new InvalidUrlException("잘못된 URL 형식입니다.");
         }
 
-        // '/'로 구분된 명령어 부분
-        String[] commandParts = urlParts[0].split("/");
-        if (commandParts.length < 2) {
-            throw new InvalidUrlException("잘못된 URL 형식입니다.");
-        }
-
-        // '/구분/기능' 형식으로 명령어를 설정
-        String command = commandParts[1] + "/" + commandParts[2];
-
-        // 파라미터 파싱
         Map<String, String> params = new HashMap<>();
         if (urlParts.length > 1) {
-            String[] paramPairs = urlParts[1].split("&");
-            for (String pair : paramPairs) {
-                String[] keyValue = pair.split("=");
+            for (String param : urlParts[1].split("&")) {
+                String[] keyValue = param.split("=", 2);
                 if (keyValue.length == 2) {
                     params.put(keyValue[0], keyValue[1]);
                 }
             }
         }
 
-        // 명령어 처리
-        switch (command) {
-            case "accounts/signup" -> {
+        String category = pathParts[1];
+        String action = pathParts[2];
+
+        switch (category) {
+            case "accounts":
+                processAccountsRequest(action, params, session, userManager);
+                break;
+            case "boards":
+                processBoardsRequest(action, params, session, boardManager);
+                break;
+            case "posts":
+                processPostsRequest(action, params, session, postManager);
+                break;
+            default:
+                throw new InvalidUrlException("지원하지 않는 카테고리입니다: " + category);
+        }
+    }
+
+    private static void processAccountsRequest(String action, Map<String, String> params,
+                                               Session session, UserManager userManager) {
+        switch (action) {
+            case "signup":
                 userManager.signup(params.get("username"), params.get("password"), params.get("email"));
-                return session;
-            }
-            case "accounts/signin" -> {
-                User loggedInUser = userManager.signin(params.get("username"), params.get("password"));
-                session.setLoggedInUser(loggedInUser);
-                return session;
-            }
-            case "accounts/signout" -> {
-                System.out.println("로그아웃되었습니다.");
-                session.setLoggedInUser(null);
-                return session;
-            }
-            case "posts/add" -> {
-                postManager.addPost(session.getLoggedInUser(), Integer.parseInt(params.get("boardId")), params.get("title"), params.get("content"));
-                return session;
-            }
-            case "posts/view" -> {
-                postManager.viewPost(Integer.parseInt(params.get("postId")));
-                return session;
-            }
-            case "boards/add" -> {
+                break;
+            case "signin":
+                session.setLoggedInUser(userManager.signin(params.get("username"),
+                        params.get("password"), session));
+                break;
+            case "signout":
+                userManager.signout(session);
+                break;
+            case "detail":
+                userManager.viewUser(Integer.parseInt(params.get("userId")));
+                break;
+            case "edit":
+                userManager.editUser(Integer.parseInt(params.get("userId")),
+                        params.get("password"), params.get("email"));
+                break;
+            case "remove":
+                userManager.removeUser(Integer.parseInt(params.get("userId")), session);
+                break;
+            default:
+                throw new InvalidUrlException("지원하지 않는 계정 작업입니다: " + action);
+        }
+    }
+
+    private static void processBoardsRequest(String action, Map<String, String> params,
+                                             Session session, BoardManager boardManager) {
+        switch (action) {
+            case "add":
                 boardManager.addBoard(session.getLoggedInUser(), params.get("name"));
-                return session;
-            }
-            case "boards/view" -> {
+                break;
+            case "edit":
+                boardManager.editBoard(Integer.parseInt(params.get("boardId")), params.get("name"));
+                break;
+            case "remove":
+                boardManager.deleteBoard(Integer.parseInt(params.get("boardId")));
+                break;
+            case "view":
                 boardManager.viewBoard(Integer.parseInt(params.get("boardId")));
-                return session;
-            }
-            default -> throw new InvalidUrlException("지원하지 않는 명령어입니다: " + command);
+                break;
+            case "list":
+                boardManager.listBoards();
+                break;
+            default:
+                throw new InvalidUrlException("지원하지 않는 게시판 작업입니다: " + action);
+        }
+    }
+
+    private static void processPostsRequest(String action, Map<String, String> params,
+                                            Session session, PostManager postManager) {
+        switch (action) {
+            case "add":
+                postManager.addPost(session.getLoggedInUser(),
+                        Integer.parseInt(params.get("boardId")),
+                        params.get("title"),
+                        params.get("content"));
+                break;
+            case "edit":
+                postManager.editPost(Integer.parseInt(params.get("postId")),
+                        params.get("title"),
+                        params.get("content"));
+                break;
+            case "remove":
+                postManager.deletePost(Integer.parseInt(params.get("postId")));
+                break;
+            case "view":
+                postManager.viewPost(Integer.parseInt(params.get("postId")));
+                break;
+            case "list":
+                postManager.viewBoardPosts(Integer.parseInt(params.get("boardId")));
+                break;
+            default:
+                throw new InvalidUrlException("지원하지 않는 게시글 작업입니다: " + action);
         }
     }
 }
