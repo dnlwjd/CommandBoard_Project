@@ -1,16 +1,14 @@
 package CommandBoard_Project;
 
-import java.time.LocalDateTime;
-
 public class Session {
+    // 현재 로그인한 사용자 정보
     private User loggedInUser;
-    private LocalDateTime sessionStartTime;
 
     public Session(User loggedInUser) {
         this.loggedInUser = loggedInUser;
-        this.sessionStartTime = LocalDateTime.now();
     }
 
+    // 현재 로그인한 사용자 정보를 반환하는 getter
     public User getLoggedInUser() {
         return loggedInUser;
     }
@@ -19,14 +17,13 @@ public class Session {
         return loggedInUser != null;
     }
 
-    public LocalDateTime getSessionStartTime() {
-        return sessionStartTime;
-    }
-
     public void setLoggedInUser(User loggedInUser) {
         this.loggedInUser = loggedInUser;
-        if (loggedInUser != null) {
-            this.sessionStartTime = LocalDateTime.now();
-        }
+    }
+
+    @Override
+    public String toString() {
+        return "Session{loggedIn=" + isLoggedIn() +
+                (isLoggedIn() ? ", user=" + loggedInUser.getUsername() : "") + "}";
     }
 }
