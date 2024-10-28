@@ -2,6 +2,8 @@ package CommandBoard_Project;
 
 import java.time.LocalDateTime;
 
+// 사용자 ID, 계정명, 비밀번호, 이메일 등의 정보
+
 public class User {
     private int userId;
     private String username;

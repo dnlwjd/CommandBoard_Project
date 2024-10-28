@@ -3,6 +3,8 @@ package CommandBoard_Project;
 import java.util.HashMap;
 import java.util.Map;
 
+// 회원가입, 로그인, 회원정보 수정 등의 기능
+
 public class UserManager {
     private Map<String, User> users = new HashMap<>();
     private int nextUserId = 1;

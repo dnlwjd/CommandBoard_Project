@@ -2,6 +2,8 @@ package CommandBoard_Project;
 
 import java.time.LocalDateTime;
 
+// 게시글 ID, 제목, 내용, 작성자, 작성일, 수정일
+
 public class Post {
     private int postId;
     private int boardId;

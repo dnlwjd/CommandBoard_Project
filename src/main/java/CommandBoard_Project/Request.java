@@ -1,5 +1,7 @@
 package CommandBoard_Project;
 
+// URL 형식의 명령어와 세션 정보
+
 public class Request {
     private String url;
     private Session session;

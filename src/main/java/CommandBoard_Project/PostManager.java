@@ -3,6 +3,8 @@ package CommandBoard_Project;
 import java.util.ArrayList;
 import java.util.List;
 
+// 게시글의 생성, 수정, 삭제, 조회 등의 기능
+
 public class PostManager {
     private List<Post> posts = new ArrayList<>();
     private int nextPostId = 1;

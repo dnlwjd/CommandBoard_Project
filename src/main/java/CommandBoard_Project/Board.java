@@ -1,5 +1,7 @@
 package CommandBoard_Project;
 
+// 게시판 ID, 이름, 생성자 정보를 관리
+
 public class Board {
     private int boardId;
     private String boardName;
