@@ -3,8 +3,6 @@ package CommandBoard_Project;
 import java.util.HashMap;
 import java.util.Map;
 
-// 회원가입, 로그인, 회원정보 수정 등의 기능
-
 public class UserManager {
     private Map<String, User> users = new HashMap<>();
     private int nextUserId = 1;
@@ -16,8 +14,10 @@ public class UserManager {
         if (users.containsKey(username)) {
             throw new InvalidUrlException("이미 존재하는 사용자입니다.");
         }
-        users.put(username, new User(nextUserId++, username, password, email));
+        User newUser = new User(nextUserId++, username, password, email);
+        users.put(username, newUser);
         System.out.println("회원가입이 완료되었습니다.");
+        System.out.println("회원님의 ID는 " + newUser.getUserId() + "번 입니다.");
     }
 
     public User signin(String username, String password, Session session) {
@@ -29,7 +29,7 @@ public class UserManager {
         if (user == null || !user.getPassword().equals(password)) {
             throw new UserNotFoundException("아이디나 비밀번호가 잘못되었습니다.");
         }
-        System.out.println("로그인되었습니다.");
+        System.out.println("로그인되었습니다. (회원번호: " + user.getUserId() + "번)");
         return user;
     }
 
@@ -63,13 +63,21 @@ public class UserManager {
         System.out.println(user);
     }
 
+    public void viewMyInfo(Session session) {
+        if (!session.isLoggedIn()) {
+            throw new InvalidUrlException("로그인 후 이용 가능합니다.");
+        }
+        User user = session.getLoggedInUser();
+        System.out.println("회원 정보:");
+        System.out.println(user);
+    }
+
     public void removeUser(int userId, Session session) {
         User user = findUserById(userId);
         if (user == null) {
             throw new UserNotFoundException(userId + "번 회원은 존재하지 않습니다.");
         }
 
-        // 로그인된 사용자와 동일한 경우 로그아웃 처리
         if (session.isLoggedIn() && session.getLoggedInUser().getUsername().equals(user.getUsername())) {
             session.setLoggedInUser(null);
         }

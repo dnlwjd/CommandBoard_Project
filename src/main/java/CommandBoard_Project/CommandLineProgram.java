@@ -91,6 +91,9 @@ public class CommandLineProgram {
             case "detail":
                 userManager.viewUser(Integer.parseInt(params.get("userId")));
                 break;
+            case "myinfo":
+                userManager.viewMyInfo(session);
+                break;
             case "edit":
                 userManager.editUser(Integer.parseInt(params.get("userId")),
                         params.get("password"), params.get("email"));

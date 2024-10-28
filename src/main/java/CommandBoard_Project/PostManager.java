@@ -3,8 +3,6 @@ package CommandBoard_Project;
 import java.util.ArrayList;
 import java.util.List;
 
-// 게시글의 생성, 수정, 삭제, 조회 등의 기능
-
 public class PostManager {
     private List<Post> posts = new ArrayList<>();
     private int nextPostId = 1;
@@ -48,6 +46,10 @@ public class PostManager {
     public void viewPost(int postId) {
         Post post = findPostById(postId);
         if (post != null) {
+            // 게시판 정보 가져오기
+            Board board = boardManager.getBoardById(post.getBoardId());
+            System.out.println("게시판: " + board.getBoardName());
+            System.out.println("------------------------------------");
             System.out.println(post);
         } else {
             throw new PostNotFoundException(postId + "번 게시글은 존재하지 않습니다.");
@@ -59,6 +61,7 @@ public class PostManager {
             throw new BoardNotFoundException(boardId + "번 게시판은 존재하지 않습니다.");
         }
 
+        // 해당 게시판의 게시글만 필터링
         List<Post> boardPosts = new ArrayList<>();
         for (Post post : posts) {
             if (post.getBoardId() == boardId) {
@@ -66,13 +69,18 @@ public class PostManager {
             }
         }
 
+        // 게시판 이름 가져오기
+        Board board = boardManager.getBoardById(boardId);
+        System.out.println("\n'" + board.getBoardName() + "' 게시판 글 목록:");
+        System.out.println("------------------------------------");
+        System.out.println("글번호 / 제목 / 작성자 / 작성일");
+        System.out.println("------------------------------------");
+
         if (boardPosts.isEmpty()) {
-            System.out.println("해당 게시판에 게시글이 없습니다.");
+            System.out.println("등록된 게시글이 없습니다.");
             return;
         }
 
-        System.out.println("\n게시글 목록:");
-        System.out.println("글번호 / 제목 / 작성자 / 작성일");
         for (Post post : boardPosts) {
             System.out.printf("%d / %s / %s / %s%n",
                     post.getPostId(),

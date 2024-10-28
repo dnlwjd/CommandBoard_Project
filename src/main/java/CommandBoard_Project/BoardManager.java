@@ -56,6 +56,10 @@ public class BoardManager {
         }
     }
 
+    public Board getBoardById(int boardId) {
+        return findBoardById(boardId);
+    }
+
     public boolean boardExists(int boardId) {
         return findBoardById(boardId) != null;
     }
