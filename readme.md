@@ -1,7 +1,5 @@
 # Command Line 게시판 프로젝트
 
-콘솔에서 동작하는 게시판 프로그램으로, URL 형식의 명령어를 통해 사용하는 형식입니다.
-
 ### 명령어 예시
 - 게시판 만들기: `/boards/add?name=자유게시판`
 - 글쓰기: `/posts/add?boardId=1&title=프로젝트01&content=프로젝트내용`
