@@ -46,6 +46,28 @@ HashMap으로 회원 아이디를 key로 저장하도록 바꿨더니
 즉시 검색이 가능해져서 로그인 속도가 훨씬 빨라졌습니다.   
 HashMap의 containsKey()로 중복 가입 체크도 쉽게 할 수 있게 됐습니다.
 상황에 맞는 자료구조를 사용하는 게 중요하다는 걸 느꼈습니다.
+```
+private List<User> users = new ArrayList<>();
+
+for (User user : users) {
+if (user.getUsername().equals(username)) {
+// 로그인 처리
+    }
+}
+
+-------------------------
+
+private Map<String, User> users = new HashMap<>();
+
+public User signin(String username, String password, Session session) {
+    // username으로 바로 검색 가능!
+    User user = users.get(username);
+    if (user == null || !user.getPassword().equals(password)) {
+        throw new UserNotFoundException("아이디나 비밀번호가 잘못되었습니다.");
+    }
+    return user;
+}
+```
 
 ### 2. null 체크의 중요성
 
@@ -54,7 +76,14 @@ HashMap의 containsKey()로 중복 가입 체크도 쉽게 할 수 있게 됐습
 삼항 연산자로 null 체크를 추가해서 해결했습니다.   
 currentUser가 null이면 "비회원"으로 표시하고, 아니면 회원 이름을 사용하도록 수정했습니다.  
 이를 통해 예외 처리의 중요성을 배웠고, 특히 null 체크는 꼭 필요하다는 걸 알게 됐습니다.  
+```
+String author = currentUser.getUsername();
 
+---------------------------------------------------
+
+String author = (currentUser != null) ? currentUser.getUsername() : "비회원";
+
+```
 
 ### 3. URL 명령어 처리하기
 
@@ -63,8 +92,23 @@ URL 형식의 명령어를 처리하는 방법이 고민이었습니다.
 split() 메소드를 사용해서 단계별로 문자열을 나누는 방식으로 해결했습니다.     
 먼저 "?"로 경로와 파라미터를 나누고, "/"로 카테고리를 구분하고, "&"로 여러 파라미터를 나누는 식으로 했습니다.   
 깔끔하게 URL 명령어를 처리할 수 있게 됐고, 문자열 처리 방법에 대해 많이 배웠습니다.
+```
+// 1단계: ? 로 기본 분리
+String[] urlParts = url.split("\\?", 2);
+// 결과: ["/boards/add", "name=자유게시판&type=normal"]
 
+// 2단계: 경로 부분을 / 로 분리
+String[] pathParts = urlParts[0].split("/");
+// 결과: ["", "boards", "add"]
 
+// 3단계: 파라미터를 & 로 분리하고 = 로 키/값 구분
+for (String param : urlParts[1].split("&")) {
+String[] keyValue = param.split("=", 2);
+params.put(keyValue[0], keyValue[1]);
+}
+// 결과: params = {"name" -> "자유게시판", "type" -> "normal"}
+
+```
 
 ## 느낀 점
 
